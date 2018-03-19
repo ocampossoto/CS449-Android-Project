@@ -19,9 +19,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -35,7 +33,6 @@ import org.json.*;
 
 public class MainActivity extends AppCompatActivity {
 
-    private String TAG = MainActivity.class.getSimpleName();
     JSONArray event_list = new JSONArray();
 
     @Override
@@ -55,8 +52,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        Button refresh = findViewById(R.id.Refresh_button);
+        refresh.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                new RetrieveFeedTask().execute();
 
-
+            }
+        });
+        //run database connection
         new RetrieveFeedTask().execute();
     }
 
@@ -87,15 +90,13 @@ public class MainActivity extends AppCompatActivity {
 
         //private Exception exception;
 
-
         @Override
         protected void onPreExecute() {
-            //findViewById(R.id.progressBar).setVisibility(View.VISIBLE);
+
         }
 
         @Override
         protected String doInBackground(Void... voids) {
-
             // add events dynamically
             RequestQueue queue = Volley.newRequestQueue(MainActivity.this);
             String url = "https://eventsapi-jhqptvquoo.now.sh/events/";
@@ -109,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
                                 JSONArray temp = new JSONArray(response);
                                 event_list = temp;
                                 update();
-                                Log.e("Event List", event_list.toString());
+                                //Log.e("Event List", event_list.toString());
 
                             } catch (Throwable t) {
                                 Log.e("My App", "Could not parse malformed JSON: \"" + response + "\"");
@@ -129,23 +130,24 @@ public class MainActivity extends AppCompatActivity {
         }
 
         protected void onPostExecute(String response) {
-            //findViewById(R.id.progressBar).setVisibility(View.INVISIBLE);
         }
     }
 
     void update(){
+        findViewById(R.id.Refresh_button).setVisibility(View.GONE);
         LinearLayout layout = findViewById(R.id.layout); //outer layout
         //add 20 items to the layout
-        Log.e("list", event_list.toString());
+        //Log.e("list", event_list.toString());
         for (int i = 0; i < event_list.length(); i++) {
             String Event_name;
             String Description;
             JSONObject Address_obj;
             String Address;
-
+            String event_id;
             //json object
             try{
                 JSONObject obj = event_list.optJSONObject(i);
+                event_id = obj.getString("_id");
                 Event_name = obj.getString("Name");
                 Description = obj.getString("Description");
                 Address_obj = obj.getJSONObject("Address");
@@ -154,6 +156,7 @@ public class MainActivity extends AppCompatActivity {
             }
             catch (Throwable t){
                 Log.e("error", "getting values");
+                event_id = "0";
                 Event_name = "Event Name";
                 Description = "Description";
                 Address = "Location";
@@ -216,14 +219,15 @@ public class MainActivity extends AppCompatActivity {
             //get the button we just created
             Button btn1 = findViewById(id_);
 
+            final String event_ID = event_id;
             //set the action upon click
             btn1.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View view) {
-                    //if clicked open the view activity
-
-                    ///******Add data that's sent here*******
+                    //if clicked open the view activity and send data for it to work properly
 
                     Intent intent = new Intent(view.getContext(), view_event.class);
+                    intent.putExtra("ID", event_ID);
+                    intent.putExtra("host_id", "1");
                     startActivity(intent);
 
                 }
