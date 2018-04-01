@@ -14,7 +14,7 @@
         android:layout_marginTop="20dp"
         android:text="Submit"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/Description" />
+        app:layout_constraintTop_toBottomOf="@+id/Description_Edit" />
 
     <EditText
         android:id="@+id/Event_Name"
@@ -29,7 +29,7 @@
         app:layout_constraintTop_toBottomOf="@+id/Ttile_Event" />
 
     <EditText
-        android:id="@+id/Street"
+        android:id="@+id/Street_Edit"
         android:layout_width="100dp"
         android:layout_height="43dp"
         android:layout_marginStart="8dp"
@@ -41,7 +41,7 @@
         app:layout_constraintTop_toBottomOf="@+id/Address_Title" />
 
     <EditText
-        android:id="@+id/Description"
+        android:id="@+id/Description_Edit"
         android:layout_width="344dp"
         android:layout_height="105dp"
         android:layout_marginStart="8dp"
@@ -72,7 +72,7 @@
         android:textColor="@android:color/black"
         android:textSize="24sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/Street" />
+        app:layout_constraintTop_toBottomOf="@+id/Street_Edit" />
 
     <TextView
         android:id="@+id/Address_Title"
@@ -87,7 +87,7 @@
         app:layout_constraintTop_toBottomOf="@+id/Event_Name" />
 
     <EditText
-        android:id="@+id/City"
+        android:id="@+id/City_Edit"
         android:layout_width="89dp"
         android:layout_height="43dp"
         android:layout_marginStart="8dp"
@@ -95,11 +95,11 @@
         android:ems="10"
         android:hint="City"
         android:inputType="textPersonName"
-        app:layout_constraintStart_toEndOf="@+id/Street"
+        app:layout_constraintStart_toEndOf="@+id/Street_Edit"
         app:layout_constraintTop_toBottomOf="@+id/Address_Title" />
 
     <EditText
-        android:id="@+id/State"
+        android:id="@+id/State_Edit"
         android:layout_width="60dp"
         android:layout_height="43dp"
         android:layout_marginStart="8dp"
@@ -107,11 +107,11 @@
         android:ems="10"
         android:hint="State"
         android:inputType="textPersonName"
-        app:layout_constraintStart_toEndOf="@+id/City"
+        app:layout_constraintStart_toEndOf="@+id/City_Edit"
         app:layout_constraintTop_toBottomOf="@+id/Address_Title" />
 
     <EditText
-        android:id="@+id/Zip"
+        android:id="@+id/Zip_Edit"
         android:layout_width="70dp"
         android:layout_height="43dp"
         android:layout_marginStart="8dp"
@@ -119,7 +119,7 @@
         android:ems="10"
         android:hint="Zip"
         android:inputType="textPersonName"
-        app:layout_constraintStart_toEndOf="@+id/State"
+        app:layout_constraintStart_toEndOf="@+id/State_Edit"
         app:layout_constraintTop_toBottomOf="@+id/Address_Title" />
 
 </android.support.constraint.ConstraintLayout>

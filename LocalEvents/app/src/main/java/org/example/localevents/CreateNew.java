@@ -1,8 +1,6 @@
 package org.example.localevents;
 
 import android.os.AsyncTask;
-import android.os.Build;
-import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,8 +18,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-
-import okhttp3.OkHttpClient;
 
 
 public class CreateNew extends AppCompatActivity {
@@ -49,11 +45,11 @@ public class CreateNew extends AppCompatActivity {
 
         //get all items from page
         TextView Name = findViewById(R.id.Event_Name);
-        TextView Street = findViewById(R.id.Street);
-        TextView City = findViewById(R.id.City);
-        TextView State = findViewById(R.id.State);
-        TextView Zip = findViewById(R.id.Zip);
-        TextView Description = findViewById(R.id.Description);
+        TextView Street = findViewById(R.id.Street_Edit);
+        TextView City = findViewById(R.id.City_Edit);
+        TextView State = findViewById(R.id.State_Edit);
+        TextView Zip = findViewById(R.id.Zip_Edit);
+        TextView Description = findViewById(R.id.Description_Edit);
 
         String event_details = "Name=" + Name.getText()
                 + "&Description=" + Description.getText()
