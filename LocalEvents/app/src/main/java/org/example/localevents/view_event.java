@@ -19,101 +19,83 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONObject;
 import org.w3c.dom.Text;
 
 public class view_event extends AppCompatActivity {
     String ID;
-    JSONObject temp = new JSONObject();
+    private FirebaseAuth mAuth;
+    FirebaseUser currentUser;
     String host;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_event);
+        mAuth = FirebaseAuth.getInstance();
+
         Intent extras = getIntent();
 
         ID = extras.getStringExtra("ID");
         host = extras.getStringExtra("host_id");
-        new RetrieveFeedTask().execute();
+        get_event(ID);
+
+        Button btn = findViewById(R.id.Edit_Button);
+
+        btn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                Intent intent = new Intent(view.getContext(), edit_event.class);
+                intent.putExtra("ID", ID);
+                startActivity(intent);
+                finish();
+            }
+        });
+    }
+    public void onStart() {
+        super.onStart();
+        // Check if user is signed in (non-null) and update UI accordingly.
+        currentUser = mAuth.getCurrentUser();
     }
 
-    class RetrieveFeedTask extends AsyncTask<Void, Void, String> {
+    private void get_event(final String ID_event){
+        final FirebaseDatabase database = FirebaseDatabase.getInstance();
+        final DatabaseReference ref = database.getReference("Events_example");
 
-        //private Exception exception;
-
-        @Override
-        protected void onPreExecute() {
-
-        }
-
-        @Override
-        protected String doInBackground(Void... voids) {
-            // add events dynamically
-            RequestQueue queue = Volley.newRequestQueue(view_event.this);
-            String url = "https://eventsapi-jhqptvquoo.now.sh/events/" + ID.toString();
-
-            StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                    new Response.Listener<String>() {
-                        @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-                        @Override
-                        public void onResponse(String response) {
-                            try {
-                                temp = new JSONObject(response);
-                                //Log.e("Item", response);
-                                display_data();
-                            } catch (Throwable t) {
-                                Log.e("My App", "Could not parse malformed JSON: \"" + response + "\"");
-                            }
-
-                        }
-                    }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    String snapkey= snapshot.getKey();
+                    if(ID_event.equals(snapkey)){
+                        Event item = snapshot.getValue(Event.class);
+                        update_UI(item);
+                        break;
+                    }
                 }
-            });
-            // Add the request to the RequestQueue.
-            queue.add(stringRequest);
-            return null;
-        }
+            }
 
-        protected void onPostExecute(String response) {
-        }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                //handle databaseError
+            }
+        });
     }
-    private void display_data(){
+    private void update_UI(Event given_event){
         TextView name = findViewById(R.id.event_name_view);
         TextView Address = findViewById(R.id.address_view);
         TextView description = findViewById(R.id.description_view);
-        try{
-            name.setText(temp.getString("Name"));
-            JSONObject Address_obj = temp.getJSONObject("Address");
-            Address.setText(Address_obj.getString("Street").toString() + " " + Address_obj.getString("City").toString() +" " + Address_obj.getString("State").toString() + " " +Address_obj.getString("Zip").toString());
-            description.setText(temp.getString("Description"));
-            if(host.equals(temp.getString("Host_id"))){
-                LinearLayout layout = findViewById(R.id.layout); //outer layout
 
-                Button btn = new Button(this);
-                btn.setText("Edit");
-
-                btn.setOnClickListener(new View.OnClickListener() {
-                    public void onClick(View view) {
-                        Intent intent = new Intent(view.getContext(), edit_event.class);
-                        intent.putExtra("ID", ID);
-                        intent.putExtra("host_id", "1");
-                        startActivity(intent);
-                        finish();
-                    }
-                });
-                layout.addView(btn);
-
-            }
-
-        }
-        catch (Throwable t){
-            Log.e("Error", "Json error");
-        }
-
+        name.setText(given_event.getEvent_name());
+        Address.setText(given_event.getAddressString());
+        description.setText(given_event.getDescription());
     }
+
 }

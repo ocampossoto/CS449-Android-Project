@@ -7,9 +7,22 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -22,10 +35,14 @@ import okhttp3.Response;
 
 public class CreateNew extends AppCompatActivity {
 
+    private FirebaseAuth mAuth;
+    FirebaseUser currentUser;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_new);
+        mAuth = FirebaseAuth.getInstance();
 
         //findViewById(R.id.Ttile_Event).add
         //get the button we just created
@@ -34,10 +51,62 @@ public class CreateNew extends AppCompatActivity {
         //set the action upon click
         btn1.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                new Post_Data().execute();
+                try {
+                    submit_to_Firebase();
+                }
+                catch(AssertionError t){
+                    Toast message = Toast.makeText(CreateNew.this,"Please Login",Toast.LENGTH_LONG);
+                    message.show();
+                }
                 finish();
             }
         });
+
+    }
+    public void onStart() {
+        super.onStart();
+        // Check if user is signed in (non-null) and update UI accordingly.
+        currentUser = mAuth.getCurrentUser();
+
+    }
+
+    private void submit_to_Firebase (){
+
+        if (currentUser == null){
+            throw new AssertionError("User cannot be null, must login");
+        }
+
+        //get all items from page
+        TextView Name = findViewById(R.id.Event_Name);
+        TextView Street = findViewById(R.id.Street_Edit);
+        TextView City = findViewById(R.id.City_Edit);
+        TextView State = findViewById(R.id.State_Edit);
+        TextView Zip = findViewById(R.id.Zip_Edit);
+        TextView Description = findViewById(R.id.Description_Edit);
+        final Event event_data = new Event();
+
+        event_data.Event_from_data(Name.getText().toString(), Description.getText().toString(), Street.getText().toString(),City.getText().toString(),State.getText().toString(), Zip.getText().toString(), currentUser.getUid());
+
+        final FirebaseDatabase database = FirebaseDatabase.getInstance();
+        final DatabaseReference ref = database.getReference("Events_example");
+
+
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        //Get map of users in datasnapshot
+//                        ArrayList<Event> event_list = (ArrayList<Event>) dataSnapshot.getValue();
+//                        event_list.add(event_data);
+                        ref.push().setValue(event_data);
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        //handle databaseError
+                    }
+                });
+
     }
 
     class Post_Data extends AsyncTask<Void, Void, String> {
@@ -50,6 +119,8 @@ public class CreateNew extends AppCompatActivity {
         TextView State = findViewById(R.id.State_Edit);
         TextView Zip = findViewById(R.id.Zip_Edit);
         TextView Description = findViewById(R.id.Description_Edit);
+
+
 
         String event_details = "Name=" + Name.getText()
                 + "&Description=" + Description.getText()
@@ -102,6 +173,8 @@ public class CreateNew extends AppCompatActivity {
             //findViewById(R.id.progressBar).setVisibility(View.INVISIBLE);
         }
     }
+
+
 }
 
 

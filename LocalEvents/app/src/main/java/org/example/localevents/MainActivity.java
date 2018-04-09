@@ -27,13 +27,21 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import org.json.*;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 
 public class MainActivity extends AppCompatActivity {
 
-    JSONArray event_list = new JSONArray();
+    ArrayList<Event> event_lists = new ArrayList<Event>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +49,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        //Firebase databasee
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
 
         //Add button to create an event.
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -55,12 +66,52 @@ public class MainActivity extends AppCompatActivity {
         Button refresh = findViewById(R.id.Refresh_button);
         refresh.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                new RetrieveFeedTask().execute();
+                //new RetrieveFeedTask().execute();
+                save_data_to_list();
 
             }
         });
-        //run database connection
-        new RetrieveFeedTask().execute();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        save_data_to_list();
+
+    }
+    protected void onStart() {
+
+        super.onStart();
+        save_data_to_list();
+
+    }
+
+    private void save_data_to_list(){
+        final FirebaseDatabase database = FirebaseDatabase.getInstance();
+        final DatabaseReference ref = database.getReference("Events_example");
+
+
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                event_lists.clear();
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    Event item = snapshot.getValue(Event.class);
+                    item.setID(snapshot.getKey());
+                    add_event(item);
+                }
+                update();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                //handle databaseError
+            }
+        });
+
+    }
+    private void add_event(Event event_to_add){
+        event_lists.add(event_to_add);
     }
 
     @Override
@@ -86,81 +137,18 @@ public class MainActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
-    class RetrieveFeedTask extends AsyncTask<Void, Void, String> {
-
-        //private Exception exception;
-
-        @Override
-        protected void onPreExecute() {
-
-        }
-
-        @Override
-        protected String doInBackground(Void... voids) {
-            // add events dynamically
-            RequestQueue queue = Volley.newRequestQueue(MainActivity.this);
-            String url = "https://eventsapi-jhqptvquoo.now.sh/events/";
-
-            StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                    new Response.Listener<String>() {
-                        @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-                        @Override
-                        public void onResponse(String response) {
-                            try {
-                                JSONArray temp = new JSONArray(response);
-                                event_list = temp;
-                                update();
-                                //Log.e("Event List", event_list.toString());
-
-                            } catch (Throwable t) {
-                                Log.e("My App", "Could not parse malformed JSON: \"" + response + "\"");
-                            }
-
-
-                        }
-                    }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-
-                }
-            });
-            // Add the request to the RequestQueue.
-            queue.add(stringRequest);
-            return null;
-        }
-
-        protected void onPostExecute(String response) {
-        }
-    }
 
     void update(){
-        findViewById(R.id.Refresh_button).setVisibility(View.GONE);
+        //findViewById(R.id.Refresh_button).setVisibility(View.GONE);
         LinearLayout layout = findViewById(R.id.layout); //outer layout
+        if(layout.getChildCount() > 0){
+            layout.removeAllViews();
+        }
+
         //add 20 items to the layout
         //Log.e("list", event_list.toString());
-        for (int i = 0; i < event_list.length(); i++) {
-            String Event_name;
-            String Description;
-            JSONObject Address_obj;
-            String Address;
-            String event_id;
-            //json object
-            try{
-                JSONObject obj = event_list.optJSONObject(i);
-                event_id = obj.getString("_id");
-                Event_name = obj.getString("Name");
-                Description = obj.getString("Description");
-                Address_obj = obj.getJSONObject("Address");
-                Address = Address_obj.getString("Street").toString() + " " + Address_obj.getString("City").toString() +" " + Address_obj.getString("State").toString() + " " +Address_obj.getString("Zip").toString();
-
-            }
-            catch (Throwable t){
-                Log.e("error", "getting values");
-                event_id = "0";
-                Event_name = "Event Name";
-                Description = "Description";
-                Address = "Location";
-            }
+        for (int i = 0; i < event_lists.size(); i++) {
+            final Event event_data = event_lists.get(i);
 
 
             //get the screen data
@@ -175,12 +163,14 @@ public class MainActivity extends AppCompatActivity {
             LinearLayout layoutHorizontal = new LinearLayout(MainActivity.this);
             layoutHorizontal.setOrientation(LinearLayout.HORIZONTAL);
 
+
             //vertical layout for list of event info
             LinearLayout layoutVertical = new LinearLayout(MainActivity.this);
             layoutVertical.setOrientation(LinearLayout.VERTICAL);
             //set height and width of the vertical layout
             //helps keep the button on right and info on left
             layoutVertical.setLayoutParams(new LinearLayout.LayoutParams(width,height));
+
 
             //add border to layout
             GradientDrawable border = new GradientDrawable();
@@ -191,14 +181,14 @@ public class MainActivity extends AppCompatActivity {
 
             //add textview for the event name
             TextView Name = new TextView(MainActivity.this);
-            Name.setText(Event_name); //event name
+            Name.setText(event_data.getEvent_name()); //event name
             Name.setTextSize(18); // set size
             Name.setTextColor(Color.BLACK); //text color
             layoutVertical.addView(Name); //add to vertical layout
 
             //add location textview
             TextView Location = new TextView(MainActivity.this);
-            Location.setText(Description + "\n" + Address);
+            Location.setText(event_data.getDescription() + "\n" + event_data.getAddressString());
             //Location.setHeight(300);
             Location.setTextSize(18); //size
             layoutVertical.addView(Location); // add to vertical layout
@@ -219,15 +209,14 @@ public class MainActivity extends AppCompatActivity {
             //get the button we just created
             Button btn1 = findViewById(id_);
 
-            final String event_ID = event_id;
+            //final String event_ID = event_data.getEvent_id();
             //set the action upon click
             btn1.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View view) {
                     //if clicked open the view activity and send data for it to work properly
 
                     Intent intent = new Intent(view.getContext(), view_event.class);
-                    intent.putExtra("ID", event_ID);
-                    intent.putExtra("host_id", "1");
+                    intent.putExtra("ID", event_data.idReturned());
                     startActivity(intent);
 
                 }
