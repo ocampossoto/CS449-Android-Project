@@ -67,7 +67,7 @@ public class view_event extends AppCompatActivity {
 
     private void get_event(final String ID_event){
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
-        final DatabaseReference ref = database.getReference("Events_example");
+        final DatabaseReference ref = database.getReference("Events");
 
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override

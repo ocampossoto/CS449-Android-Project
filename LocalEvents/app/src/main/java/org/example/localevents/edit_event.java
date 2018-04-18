@@ -87,7 +87,7 @@ public class edit_event extends AppCompatActivity {
     private void update_database(final Event new_event){
 
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
-        final DatabaseReference ref = database.getReference("Events_example");
+        final DatabaseReference ref = database.getReference("Events");
 
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override

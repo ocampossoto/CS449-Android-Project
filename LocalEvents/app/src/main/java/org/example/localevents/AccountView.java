@@ -48,7 +48,7 @@ public class AccountView extends AppCompatActivity {
 
     private void updateUI(FirebaseUser currentUser) {
         TextView email = findViewById(R.id.Email_Display);
-        email.setText(currentUser.getEmail().toString());
+        email.setText(currentUser.getEmail());
 
 
 

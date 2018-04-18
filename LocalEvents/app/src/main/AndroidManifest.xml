@@ -28,11 +28,11 @@
         <activity
             android:name=".LoginActivity"
             android:label="@string/title_activity_login" />
-        <activity android:name=".CreateNew" />
-        <activity android:name=".view_event" />
-        <activity android:name=".edit_event" />
-        <activity android:name=".AccountView" />
-        <activity android:name=".SignUp"></activity>
+        <activity android:name=".CreateNew" android:label="Create A New Event"/>
+        <activity android:name=".view_event" android:label="Event View"/>
+        <activity android:name=".edit_event" android:label="Edit This Event"/>
+        <activity android:name=".AccountView" android:label="Account View" />
+        <activity android:name=".SignUp" android:label="Sign Up"></activity>
     </application>
 
 </manifest>

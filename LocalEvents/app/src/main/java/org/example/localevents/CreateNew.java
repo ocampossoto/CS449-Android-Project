@@ -88,7 +88,7 @@ public class CreateNew extends AppCompatActivity {
         event_data.Event_from_data(Name.getText().toString(), Description.getText().toString(), Street.getText().toString(),City.getText().toString(),State.getText().toString(), Zip.getText().toString(), currentUser.getUid());
 
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
-        final DatabaseReference ref = database.getReference("Events_example");
+        final DatabaseReference ref = database.getReference("Events");
 
 
         ref.addListenerForSingleValueEvent(new ValueEventListener() {

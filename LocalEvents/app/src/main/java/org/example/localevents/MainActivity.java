@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void save_data_to_list(){
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
-        final DatabaseReference ref = database.getReference("Events_example");
+        final DatabaseReference ref = database.getReference("Events");
 
 
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
