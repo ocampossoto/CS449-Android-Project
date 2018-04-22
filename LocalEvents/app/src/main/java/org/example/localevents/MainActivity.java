@@ -27,6 +27,8 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -40,7 +42,7 @@ import java.util.HashMap;
 
 
 public class MainActivity extends AppCompatActivity {
-
+    FirebaseUser user;
     ArrayList<Event> event_lists = new ArrayList<Event>();
 
     @Override
@@ -76,13 +78,29 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        save_data_to_list();
+        user = FirebaseAuth.getInstance().getCurrentUser();
+        if(user == null){
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            startActivity(intent);
+            finish();
+        }
+        else{
+            save_data_to_list();
+        }
 
     }
     protected void onStart() {
-
         super.onStart();
-        save_data_to_list();
+        user = FirebaseAuth.getInstance().getCurrentUser();
+        if(user == null){
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            startActivity(intent);
+            finish();
+        }
+        else{
+            save_data_to_list();
+        }
+
 
     }
 

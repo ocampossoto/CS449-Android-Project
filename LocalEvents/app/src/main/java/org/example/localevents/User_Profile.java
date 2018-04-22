@@ -5,12 +5,14 @@ public class User_Profile {
     private String FName;
     private String LName;
     private String DOB;
+    private String UID;
 
-    public User_Profile(String email, String first, String last, String dob) {
+    public User_Profile(String email, String first, String last, String dob, String uid) {
         Email =email;
         FName = first;
         LName = last;
         DOB = dob;
+        UID = uid;
     }
 
     public String getEmail() {
@@ -29,6 +31,10 @@ public class User_Profile {
         return DOB;
     }
 
+    public String getUID() {
+        return UID;
+    }
+
     public void setEmail(String email) {
         Email = email;
     }
@@ -43,5 +49,9 @@ public class User_Profile {
 
     public void setLName(String LName) {
         this.LName = LName;
+    }
+
+    public void setUID(String UID) {
+        this.UID = UID;
     }
 }

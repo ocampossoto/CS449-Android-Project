@@ -1,5 +1,7 @@
 package org.example.localevents;
 
+import android.accounts.Account;
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -35,6 +37,15 @@ public class AccountView extends AppCompatActivity {
             public void onClick(View view) {
                 mAuth.signOut();
                 finish();
+            }
+        });
+        Button home = findViewById(R.id.Back_home);
+
+        home.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(AccountView.this, MainActivity.class);
+                startActivity(intent);
             }
         });
 

@@ -25,7 +25,6 @@
         android:ems="10"
         android:hint="Event Name"
         android:inputType="textPersonName"
-        android:text="Event Name"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/Ttile_Event" />
 
@@ -38,7 +37,6 @@
         android:ems="10"
         android:hint="Street"
         android:inputType="textPostalAddress"
-        android:text="Street"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/Address_Title" />
 
@@ -50,7 +48,6 @@
         android:layout_marginTop="16dp"
         android:ems="10"
         android:inputType="textMultiLine"
-        android:text="Some text"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/Description_Title" />
 
@@ -98,7 +95,6 @@
         android:ems="10"
         android:hint="City"
         android:inputType="textPersonName"
-        android:text="City"
         app:layout_constraintStart_toEndOf="@+id/Street_Edit"
         app:layout_constraintTop_toBottomOf="@+id/Address_Title" />
 
@@ -111,7 +107,6 @@
         android:ems="10"
         android:hint="State"
         android:inputType="textPersonName"
-        android:text="ST"
         app:layout_constraintStart_toEndOf="@+id/City_Edit"
         app:layout_constraintTop_toBottomOf="@+id/Address_Title" />
 
@@ -124,7 +119,6 @@
         android:ems="10"
         android:hint="Zip"
         android:inputType="textPersonName"
-        android:text="6666"
         app:layout_constraintStart_toEndOf="@+id/State_Edit"
         app:layout_constraintTop_toBottomOf="@+id/Address_Title" />
 

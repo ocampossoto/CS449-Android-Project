@@ -19,10 +19,24 @@
         android:layout_height="wrap_content"
         android:textSize="24sp" />
 
-    <Button
-        android:id="@+id/SignOut"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Sign Out" />
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/SignOut"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Sign Out" />
+
+        <Button
+            android:id="@+id/Back_home"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Back" />
+    </LinearLayout>
 
 </LinearLayout>

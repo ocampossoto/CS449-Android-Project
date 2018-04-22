@@ -40,6 +40,8 @@ public class SignUp extends AppCompatActivity {
                 signup();
             }
         });
+
+
     }
 
     private void signup() {
@@ -76,8 +78,8 @@ public class SignUp extends AppCompatActivity {
     }
 
 
-    private void commit_signup(String email, String password, String First, String Last, String DOB){
-        final User_Profile user_data = new User_Profile(email, First, Last, DOB);
+    private void commit_signup(final String email, String password, final String First, final String Last, final String DOB){
+
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
@@ -86,6 +88,7 @@ public class SignUp extends AppCompatActivity {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d("Success", "createUserWithEmail:success");
                             FirebaseUser user = mAuth.getCurrentUser();
+                            final User_Profile user_data = new User_Profile(email, First, Last, DOB, user.getUid());
                             save_user_data(user_data);
                             updateUI(user);
                         } else {
