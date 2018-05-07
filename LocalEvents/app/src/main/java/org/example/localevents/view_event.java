@@ -35,27 +35,32 @@ public class view_event extends AppCompatActivity {
     private FirebaseAuth mAuth;
     FirebaseUser currentUser;
     String host;
+    boolean event_privacy;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_event);
         mAuth = FirebaseAuth.getInstance();
-
+        //get intent extras
         Intent extras = getIntent();
-
+        //get items from intent
         ID = extras.getStringExtra("ID");
         host = extras.getStringExtra("host_id");
+        //get event data
         get_event(ID);
-
+        // exit button actions
         Button btn = findViewById(R.id.Edit_Button);
 
         btn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
+                //create intent to edit page
                 Intent intent = new Intent(view.getContext(), edit_event.class);
+                //set id of the event
                 intent.putExtra("ID", ID);
+                //start activity
                 startActivity(intent);
-                finish();
+                finish(); //exit this activity
             }
         });
     }
@@ -63,6 +68,12 @@ public class view_event extends AppCompatActivity {
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
         currentUser = mAuth.getCurrentUser();
+        if(currentUser == null){
+            //exit if user isn't logged in
+            Intent intent = new Intent(view_event.this, LoginActivity.class);
+            startActivity(intent);
+            finish();
+        }
     }
 
     private void get_event(final String ID_event){
@@ -73,8 +84,11 @@ public class view_event extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    //save key
                     String snapkey= snapshot.getKey();
+                    //if correct key update ui
                     if(ID_event.equals(snapkey)){
+                        //save event data from db
                         Event item = snapshot.getValue(Event.class);
                         update_UI(item);
                         break;
@@ -89,13 +103,20 @@ public class view_event extends AppCompatActivity {
         });
     }
     private void update_UI(Event given_event){
+        //ui items
         TextView name = findViewById(R.id.event_name_view);
         TextView Address = findViewById(R.id.address_view);
         TextView description = findViewById(R.id.description_view);
-
+        //update ui info
         name.setText(given_event.getEvent_name());
         Address.setText(given_event.getAddressString());
         description.setText(given_event.getDescription());
+        //check if this is the host
+        if(!given_event.getHost().equals(currentUser.getUid())){
+            //add edit button for the host.
+            Button edit_button = findViewById(R.id.Edit_Button);
+            edit_button.setVisibility(View.INVISIBLE);
+        }
     }
 
 }

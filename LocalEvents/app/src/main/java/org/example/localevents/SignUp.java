@@ -15,7 +15,6 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -31,7 +30,7 @@ public class SignUp extends AppCompatActivity {
         setContentView(R.layout.activity_sign_up);
 
         mAuth = FirebaseAuth.getInstance();
-
+        //submit button
         Button submit = findViewById(R.id.Sign_Up_Commit);
 
         submit.setOnClickListener(new View.OnClickListener() {
@@ -45,6 +44,7 @@ public class SignUp extends AppCompatActivity {
     }
 
     private void signup() {
+        //user input items
         EditText email_box = findViewById(R.id.Email_SignUp);
         EditText email_verify_box = findViewById(R.id.Email_Verify_Signup);
         EditText password_box = findViewById(R.id.Password_SignUp);
@@ -52,7 +52,7 @@ public class SignUp extends AppCompatActivity {
         EditText FName_Box = findViewById(R.id.FName);
         EditText LName_Box = findViewById(R.id.LName);
         EditText Birthday_Box = findViewById(R.id.Birthday);
-
+        //save inputed text
         String email = email_box.getText().toString();
         String email_verify = email_verify_box.getText().toString();
         String password = password_box.getText().toString();
@@ -60,9 +60,10 @@ public class SignUp extends AppCompatActivity {
         String FName = FName_Box.getText().toString();
         String LName = LName_Box.getText().toString();
         String Birthday = Birthday_Box.getText().toString();
-
+        //check if emails match and passwords match
         if(email.equals(email_verify)){
             if(password.equals(password_verify)){
+                //post to database and sign up
                 commit_signup(email, password, FName, LName, Birthday);
             }
             else{
@@ -86,10 +87,12 @@ public class SignUp extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
-                            Log.d("Success", "createUserWithEmail:success");
                             FirebaseUser user = mAuth.getCurrentUser();
-                            final User_Profile user_data = new User_Profile(email, First, Last, DOB, user.getUid());
+                            //save user data to database
+                            final user_profile user_data = new user_profile();
+                            user_data.from_data(email, First, Last, DOB, user.getUid());
                             save_user_data(user_data);
+                            //exit to logged in page
                             updateUI(user);
                         } else {
                             // If sign in fails, display a message to the user.
@@ -103,7 +106,8 @@ public class SignUp extends AppCompatActivity {
                 });
 
     }
-    private void save_user_data(final User_Profile user){
+    private void save_user_data(final user_profile user){
+        //firebase set up
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
         final DatabaseReference ref = database.getReference("Users");
 
@@ -111,6 +115,7 @@ public class SignUp extends AppCompatActivity {
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                //save user data to database
                 ref.push().setValue(user);
 
             }

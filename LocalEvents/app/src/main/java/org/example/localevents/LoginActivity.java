@@ -56,7 +56,7 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         mAuth = FirebaseAuth.getInstance();
-
+        //submit button
         Button Submit = (Button)findViewById(R.id.Sign_In_btn);
 
         Submit.setOnClickListener(new View.OnClickListener() {
@@ -64,16 +64,18 @@ public class LoginActivity extends AppCompatActivity {
                 signin();
             }
         });
+
+        //sign up button
         Button SignUp = (Button)findViewById(R.id.Sign_Up_Btn);
 
         SignUp.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
+                //go to sign up page
                 Intent intent = new Intent(LoginActivity.this, SignUp.class);
                 startActivity(intent);
             }
         });
     }
-
 
 
     @Override

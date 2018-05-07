@@ -64,11 +64,11 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
+        //refresh button
         Button refresh = findViewById(R.id.Refresh_button);
         refresh.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                //new RetrieveFeedTask().execute();
+                //save data to list and update UI
                 save_data_to_list();
 
             }
@@ -79,12 +79,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         user = FirebaseAuth.getInstance().getCurrentUser();
+        //check if user is logged in if not redirect to login/sign up page
         if(user == null){
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
             startActivity(intent);
             finish();
         }
         else{
+            //if logged in reload events
             save_data_to_list();
         }
 
@@ -92,12 +94,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         user = FirebaseAuth.getInstance().getCurrentUser();
+        //check if user is logged in if not redirect to login/sign up page
         if(user == null){
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
             startActivity(intent);
             finish();
         }
         else{
+            //if logged in reload events
             save_data_to_list();
         }
 
@@ -105,6 +109,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void save_data_to_list(){
+        //firebase set up
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
         final DatabaseReference ref = database.getReference("Events");
 
@@ -114,8 +119,11 @@ public class MainActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 event_lists.clear();
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    //save event as item
                     Event item = snapshot.getValue(Event.class);
+                    //set ID
                     item.setID(snapshot.getKey());
+                    //add event to list
                     add_event(item);
                 }
                 update();
@@ -129,6 +137,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
     private void add_event(Event event_to_add){
+        //add event to list.
         event_lists.add(event_to_add);
     }
 
@@ -157,88 +166,90 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void update(){
-        //findViewById(R.id.Refresh_button).setVisibility(View.GONE);
+
         LinearLayout layout = findViewById(R.id.layout); //outer layout
+        //clear layout if there are items.
         if(layout.getChildCount() > 0){
             layout.removeAllViews();
         }
-
-        //add 20 items to the layout
-        //Log.e("list", event_list.toString());
+        //go through event's in list and add them
         for (int i = 0; i < event_lists.size(); i++) {
+            //save event
             final Event event_data = event_lists.get(i);
+            //check if event is private or if user is the host
+            if(!event_data.isPrivate() || event_data.getHost().equals(user.getUid())){
+                //get the screen data
+                DisplayMetrics displayMetrics = new DisplayMetrics();
+                getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+
+                //set the size constraint for each item
+                int height = displayMetrics.heightPixels/8;
+                int width = displayMetrics.widthPixels-(displayMetrics.widthPixels/4);
+
+                //horizontal layout for event items
+                LinearLayout layoutHorizontal = new LinearLayout(MainActivity.this);
+                layoutHorizontal.setOrientation(LinearLayout.HORIZONTAL);
 
 
-            //get the screen data
-            DisplayMetrics displayMetrics = new DisplayMetrics();
-            getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-
-            //set the size constraint for each item
-            int height = displayMetrics.heightPixels/8;
-            int width = displayMetrics.widthPixels-(displayMetrics.widthPixels/4);
-
-            //horizontal layout for event items
-            LinearLayout layoutHorizontal = new LinearLayout(MainActivity.this);
-            layoutHorizontal.setOrientation(LinearLayout.HORIZONTAL);
+                //vertical layout for list of event info
+                LinearLayout layoutVertical = new LinearLayout(MainActivity.this);
+                layoutVertical.setOrientation(LinearLayout.VERTICAL);
+                //set height and width of the vertical layout
+                //helps keep the button on right and info on left
+                layoutVertical.setLayoutParams(new LinearLayout.LayoutParams(width,height));
 
 
-            //vertical layout for list of event info
-            LinearLayout layoutVertical = new LinearLayout(MainActivity.this);
-            layoutVertical.setOrientation(LinearLayout.VERTICAL);
-            //set height and width of the vertical layout
-            //helps keep the button on right and info on left
-            layoutVertical.setLayoutParams(new LinearLayout.LayoutParams(width,height));
+                //add border to layout
+                GradientDrawable border = new GradientDrawable();
+                border.setColor(0xFFFFFFFF); //white background
+                border.setStroke(1, 0xFF000000); //black border with full opacity
+                //add to layout
+                layoutVertical.setBackground(border);
 
+                //add textview for the event name
+                TextView Name = new TextView(MainActivity.this);
+                Name.setText(event_data.getEvent_name()); //event name
+                Name.setTextSize(18); // set size
+                Name.setTextColor(Color.BLACK); //text color
+                layoutVertical.addView(Name); //add to vertical layout
 
-            //add border to layout
-            GradientDrawable border = new GradientDrawable();
-            border.setColor(0xFFFFFFFF); //white background
-            border.setStroke(1, 0xFF000000); //black border with full opacity
-            //add to layout
-            layoutVertical.setBackground(border);
+                //add location textview
+                TextView Location = new TextView(MainActivity.this);
+                Location.setText(event_data.getDescription() + "\n" + event_data.getAddressString());
+                //Location.setHeight(300);
+                Location.setTextSize(18); //size
+                layoutVertical.addView(Location); // add to vertical layout
 
-            //add textview for the event name
-            TextView Name = new TextView(MainActivity.this);
-            Name.setText(event_data.getEvent_name()); //event name
-            Name.setTextSize(18); // set size
-            Name.setTextColor(Color.BLACK); //text color
-            layoutVertical.addView(Name); //add to vertical layout
+                //add to horizontal layout
+                layoutHorizontal.addView(layoutVertical);
 
-            //add location textview
-            TextView Location = new TextView(MainActivity.this);
-            Location.setText(event_data.getDescription() + "\n" + event_data.getAddressString());
-            //Location.setHeight(300);
-            Location.setTextSize(18); //size
-            layoutVertical.addView(Location); // add to vertical layout
+                //add view button
+                Button btn = new Button(MainActivity.this);
+                btn.setId(i); //set button id
+                final int id_ = btn.getId(); //get id
+                btn.setText("View"); // button text
+                //add to horizontal layout
+                layoutHorizontal.addView(btn);
+                //add to the upper layout
+                layout.addView(layoutHorizontal);
 
-            //add to horizontal layout
-            layoutHorizontal.addView(layoutVertical);
+                //get the button we just created
+                Button btn1 = findViewById(id_);
 
-            //add view button
-            Button btn = new Button(MainActivity.this);
-            btn.setId(i); //set button id
-            final int id_ = btn.getId(); //get id
-            btn.setText("View"); // button text
-            //add to horizontal layout
-            layoutHorizontal.addView(btn);
-            //add to the upper layout
-            layout.addView(layoutHorizontal);
+                //final String event_ID = event_data.getEvent_id();
+                //set the action upon click
+                btn1.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View view) {
+                        //if clicked open the view activity and send data for it to work properly
 
-            //get the button we just created
-            Button btn1 = findViewById(id_);
+                        Intent intent = new Intent(view.getContext(), view_event.class);
+                        intent.putExtra("ID", event_data.idReturned());
+                        startActivity(intent);
 
-            //final String event_ID = event_data.getEvent_id();
-            //set the action upon click
-            btn1.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View view) {
-                    //if clicked open the view activity and send data for it to work properly
+                    }
+                });
 
-                    Intent intent = new Intent(view.getContext(), view_event.class);
-                    intent.putExtra("ID", event_data.idReturned());
-                    startActivity(intent);
-
-                }
-            });
+            }
 
         }
     }

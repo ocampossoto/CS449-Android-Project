@@ -1,11 +1,13 @@
 package org.example.localevents;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -51,6 +53,7 @@ public class CreateNew extends AppCompatActivity {
         //set the action upon click
         btn1.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
+                //attempt to submit to firebase
                 try {
                     submit_to_Firebase();
                 }
@@ -65,16 +68,17 @@ public class CreateNew extends AppCompatActivity {
     }
     public void onStart() {
         super.onStart();
-        // Check if user is signed in (non-null) and update UI accordingly.
+        // Check if user is signed in if not send user to login page
         currentUser = mAuth.getCurrentUser();
+        if(currentUser == null){
+            Intent intent = new Intent(CreateNew.this, LoginActivity.class);
+            startActivity(intent);
+            finish();
+        }
 
     }
 
     private void submit_to_Firebase (){
-
-        if (currentUser == null){
-            throw new AssertionError("User cannot be null, must login");
-        }
 
         //get all items from page
         TextView Name = findViewById(R.id.Event_Name);
@@ -83,20 +87,19 @@ public class CreateNew extends AppCompatActivity {
         TextView State = findViewById(R.id.State_Edit);
         TextView Zip = findViewById(R.id.Zip_Edit);
         TextView Description = findViewById(R.id.Description_Edit);
+        CheckBox privacy = findViewById(R.id.Privacy_create);
+        //create event object
         final Event event_data = new Event();
-
-        event_data.Event_from_data(Name.getText().toString(), Description.getText().toString(), Street.getText().toString(),City.getText().toString(),State.getText().toString(), Zip.getText().toString(), currentUser.getUid());
-
+        //set event data
+        event_data.Event_from_data(Name.getText().toString(), Description.getText().toString(), Street.getText().toString(),City.getText().toString(),State.getText().toString(), Zip.getText().toString(), currentUser.getUid(), privacy.isChecked());
+        //firebase set up
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
         final DatabaseReference ref = database.getReference("Events");
-
 
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        //Get map of users in datasnapshot
-//                        ArrayList<Event> event_list = (ArrayList<Event>) dataSnapshot.getValue();
-//                        event_list.add(event_data);
+                        //add event to database
                         ref.push().setValue(event_data);
 
                     }
@@ -108,73 +111,6 @@ public class CreateNew extends AppCompatActivity {
                 });
 
     }
-
-    class Post_Data extends AsyncTask<Void, Void, String> {
-
-
-        //get all items from page
-        TextView Name = findViewById(R.id.Event_Name);
-        TextView Street = findViewById(R.id.Street_Edit);
-        TextView City = findViewById(R.id.City_Edit);
-        TextView State = findViewById(R.id.State_Edit);
-        TextView Zip = findViewById(R.id.Zip_Edit);
-        TextView Description = findViewById(R.id.Description_Edit);
-
-
-
-        String event_details = "Name=" + Name.getText()
-                + "&Description=" + Description.getText()
-                + "&Street="+ Street.getText()
-                + "&City=" + City.getText()
-                + "&State="+ State.getText()
-                + "&Zip="+ Zip.getText()
-                + "&Host_id=0&Privacy=0";
-
-        //private Exception exception;
-
-        @Override
-        protected void onPreExecute() {
-            //findViewById(R.id.progressBar).setVisibility(View.VISIBLE);
-        }
-
-        @Override
-        protected String doInBackground(Void... voids) {
-            OkHttpClient client = new OkHttpClient();
-            String url = "https://eventsapi-jhqptvquoo.now.sh/events/";
-            MediaType mediaType = MediaType.parse("application/x-www-form-urlencoded");
-            RequestBody body = RequestBody.create(mediaType, event_details);
-            Request request = new Request.Builder()
-                    .url("https://eventsapi-jhqptvquoo.now.sh/events/")
-                    .post(body)
-                    .addHeader("Content-Type", "application/x-www-form-urlencoded")
-                    .addHeader("Cache-Control", "no-cache")
-                    .addHeader("Postman-Token", "b301cb63-533f-4177-aacd-3fb33ed889c6")
-                    .build();
-
-
-            client.newCall(request).enqueue(new Callback() {
-                @Override
-                public void onFailure(Call call, IOException e) {
-                    call.cancel();
-                }
-
-                @Override
-                public void onResponse(Call call, Response response) throws IOException {
-
-                    final String myResponse = response.body().string();
-                    Log.e("Response", myResponse);
-                }
-            });
-
-            return null;
-        }
-
-        protected void onPostExecute(String response) {
-            //findViewById(R.id.progressBar).setVisibility(View.INVISIBLE);
-        }
-    }
-
-
 }
 
 
